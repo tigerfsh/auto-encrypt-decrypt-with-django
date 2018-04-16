@@ -40,10 +40,8 @@ class PersonalData(models.Model):
     user = models.OneToOneField(User, verbose_name="用户", related_name="personal_data", on_delete=models.CASCADE)
     portrait = models.ImageField("头像", upload_to=portrait_path, blank=True)
     address = models.CharField("住址", max_length=100, blank=True)
-    address_status = models.BooleanField("地址加密状态", default=False)
     github = models.URLField("Github 地址", max_length=50, blank=True)
 
-    encrypt_items = ['address']
 
     class Meta:
         verbose_name = "用户信息"
@@ -54,13 +52,4 @@ class PersonalData(models.Model):
             return "blank address."
         return self.address
 
-    def __getattribute__(self, item):
-        if item in object_getattr(self, "encrypt_items"):
-            item_status = object_getattr(self, "{}_status".format(item))
-            if not item_status:
-                self.__setattr__("{}_status".format(item), True)
-                return ali_encrypt(object_getattr(self, item))
-            else:
-                return ali_decrypt(object_getattr(self, item))
-        return object_getattr(self, item)
 
